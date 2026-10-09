@@ -1,0 +1,29 @@
+# Secrets (only .env.example is tracked)
+.env
+.env.*
+!.env.example
+
+# Python
+*.pyc
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Tooling and test artifacts
+.playwright-mcp/
+lns_screenshots/
+tests/screenshots/
+.claude/
+
+# OS / logs
+.DS_Store
+*.log
+celerybeat-schedule
+celerybeat.pid
