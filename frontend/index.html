@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LNS Botz — AI Utility Bots for India</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://www.paypal.com/sdk/js?client-id=BAAI8AqeFoOdPirMi_cN7P9Ld_X8lS-OddmPXi6LNetqse-9UGLfMJE37oGM70CaLgPGZW2fO7d2fmyPTU&currency=USD"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray: #aaaaaa;
+      --gray2: #666666;
+      --card: #111111;
+      --card2: #181818;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --blue: #1a8fff;
+      --blue-glow: rgba(26,143,255,0.18);
+      --navy: #0d1b3e;
+      --radius: 18px;
+      --radius-pill: 999px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: #000000;
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    /* Fix 2: atmospheric deep-space gradient — not flat black */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 120% 80% at 50% 110%, #071428 0%, #040b18 35%, #000000 70%);
+    }
+    a { color: inherit; text-decoration: none; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+    /* ── PARTICLE CANVAS ── */
+    #particle-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.55;
+    }
+
+    /* ── NAV — floating pill ── */
+    .nav-wrap {
+      position: fixed; top: 1.5rem; left: 0; right: 0;
+      display: flex; justify-content: center; z-index: 100;
+    }
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.65rem 1.25rem 0.65rem 1.5rem;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-pill);
+      width: min(680px, calc(100vw - 2rem));
+      gap: 2rem;
+    }
+    .nav-logo {
+      font-size: 1rem; font-weight: 900; letter-spacing: -0.5px;
+      color: var(--white); white-space: nowrap; flex-shrink: 0;
+      display: flex; align-items: center; gap: 0;
+    }
+    .nav-brand { color: var(--white); font-weight: 800; }
+    .nav-sep { color: var(--gray2); font-weight: 300; margin: 0 0.3rem; }
+    .nav-product { color: var(--gray2); font-weight: 500; font-size: 0.85rem; }
+
+    /* Google Sign In button */
+    .btn-google {
+      width: 100%; padding: 0.75rem 1rem;
+      background: var(--black); color: var(--white);
+      border: 1px solid var(--border2); border-radius: var(--radius-pill);
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.65rem;
+      font-family: inherit; transition: all 0.2s; margin-bottom: 1rem;
+    }
+    .btn-google:hover { background: #111; border-color: rgba(255,255,255,0.25); }
+    .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .divider {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .divider span { color: var(--gray2); font-size: 0.75rem; white-space: nowrap; }
+    .nav-links {
+      display: flex; align-items: center; gap: 1.75rem; flex: 1; justify-content: center;
+    }
+    .nav-links a {
+      color: var(--gray); font-size: 0.85rem; font-weight: 500;
+      transition: color 0.2s; white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--white); color: var(--black);
+      padding: 0.45rem 1rem; border-radius: var(--radius-pill);
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      border: none; white-space: nowrap; flex-shrink: 0; transition: opacity 0.2s;
+    }
+    .nav-cta-btn:hover { opacity: 0.88; }
+    .nav-cta-btn .arrow-circle {
+      width: 20px; height: 20px; background: var(--black);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: var(--white);
+    }
+
+    /* ── SECTIONS ── */
+    .z1 { position: relative; z-index: 1; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 1.5rem 6rem;
+      position: relative; z-index: 1; overflow: hidden;
+    }
+    /* Fix 1: glowing orb hero element */
+    .hero-orb {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: min(900px, 140vw); height: min(900px, 140vw);
+      border-radius: 50%; pointer-events: none;
+      background: radial-gradient(ellipse at center,
+        rgba(26,100,255,0.14) 0%,
+        rgba(26,80,255,0.07) 30%,
+        rgba(10,40,180,0.04) 55%,
+        transparent 70%
+      );
+      animation: orbPulse 6s ease-in-out infinite;
+    }
+    @keyframes orbPulse {
+      0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.8; }
+      50%      { transform: translate(-50%,-50%) scale(1.08); opacity: 1; }
+    }
+    /* Outer ring glow */
+    .hero-ring {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: min(650px, 110vw); height: min(650px, 110vw);
+      border-radius: 50%; pointer-events: none;
+      border: 1px solid rgba(26,143,255,0.08);
+      box-shadow: 0 0 80px rgba(26,100,255,0.12) inset, 0 0 80px rgba(26,100,255,0.06);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(26,143,255,0.25);
+      color: var(--gray); padding: 0.35rem 1rem; border-radius: var(--radius-pill);
+      font-size: 0.78rem; font-weight: 500; margin-bottom: 2.5rem; letter-spacing: 0.3px;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; background: var(--blue);
+      border-radius: 50%; box-shadow: 0 0 8px var(--blue);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+    .hero h1 {
+      font-size: clamp(3.5rem, 9vw, 6.5rem);
+      font-weight: 800; letter-spacing: -0.04em;
+      line-height: 1.02; margin-bottom: 1.75rem;
+      color: var(--white);
+    }
+    /* Fix 5: subtle gradient fade on second line */
+    .hero h1 .dim { color: rgba(255,255,255,0.55); }
+    .hero h1 .period { color: rgba(255,255,255,0.3); }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.15rem); color: var(--gray);
+      max-width: 500px; margin: 0 auto 3rem; font-weight: 400; line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-black {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--white); color: var(--black);
+      padding: 0.75rem 1.75rem; border-radius: var(--radius-pill);
+      font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 0 rgba(255,255,255,0);
+    }
+    .btn-black:hover { opacity: 0.9; box-shadow: 0 0 30px rgba(255,255,255,0.15); }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: transparent; color: var(--white);
+      padding: 0.75rem 1.5rem; border-radius: var(--radius-pill);
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.2); transition: border-color 0.2s;
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.5); }
+    .btn-outline .arrow-circ {
+      width: 26px; height: 26px; border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    /* ── STATS ── */
+    .stats-row {
+      display: flex; justify-content: center; gap: 5rem;
+      margin-top: 6rem; padding-top: 4rem;
+      border-top: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-n { font-size: clamp(3rem, 6vw, 4.5rem); font-weight: 800; letter-spacing: -0.03em; color: var(--white); line-height: 1; }
+    .stat-l { font-size: 0.8rem; color: var(--gray2); font-weight: 500; margin-top: 0.5rem; letter-spacing: 0.5px; }
+
+    /* ── INTERSTITIAL — dramatic pause ── */
+    .interstitial {
+      min-height: 60vh; display: flex; align-items: center;
+      justify-content: center; text-align: center; padding: 6rem 2rem;
+      position: relative; z-index: 1; overflow: hidden;
+    }
+    .interstitial::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 300px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(26,100,255,0.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .interstitial h2 {
+      font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 800;
+      letter-spacing: -0.03em; line-height: 1.1; color: var(--white); max-width: 700px;
+      position: relative; z-index: 1;
+    }
+    .interstitial h2 em { font-style: normal; color: rgba(255,255,255,0.4); }
+
+    /* ── SECTION COMMONS ── */
+    .section { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem; position: relative; z-index: 1; }
+    .eyebrow { font-size: 0.72rem; font-weight: 600; color: var(--gray2); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 1.25rem; }
+    .section-h { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; margin-bottom: 1rem; }
+    .section-sub { color: var(--gray); font-size: 1rem; line-height: 1.7; max-width: 480px; }
+
+    /* ── FEATURES GRID ── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1px; margin-top: 4rem; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .feat-card {
+      background: var(--card); padding: 2.5rem;
+      transition: background 0.25s; position: relative;
+    }
+    .feat-card:hover { background: #161616; }
+    .feat-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 40%, var(--blue-glow) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feat-card:hover::before { opacity: 1; }
+    .feat-icon {
+      font-size: 1.5rem; margin-bottom: 1.25rem; display: block;
+      filter: grayscale(1) brightness(0.8);
+      transition: filter 0.25s;
+    }
+    .feat-card:hover .feat-icon { filter: grayscale(0) brightness(1); }
+    .feat-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--white); }
+    .feat-card p { color: var(--gray); font-size: 0.875rem; line-height: 1.65; margin-bottom: 1.25rem; }
+    .feat-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .feat-tag { font-size: 0.72rem; color: var(--gray2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); }
+
+    /* ── TELEGRAM SECTION ── */
+    .tg-section {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 8rem 0;
+    }
+    .tg-eyebrow { font-size: 0.72rem; font-weight: 600; color: var(--gray2); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 1.25rem; }
+    .tg-h { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; margin-bottom: 1rem; }
+    .tg-p { color: var(--gray); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; }
+    .tg-feats { list-style: none; }
+    .tg-feats li { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0; color: var(--gray); font-size: 0.875rem; border-bottom: 1px solid var(--border); }
+    .tg-feats li .ic { width: 28px; height: 28px; background: var(--card2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+
+    .tg-phone {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: 20px; overflow: hidden;
+    }
+    .tg-phone-head { background: var(--card2); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid var(--border); }
+    .tg-av { width: 32px; height: 32px; border-radius: 50%; background: var(--navy); border: 1px solid var(--blue); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+    .tg-name { font-weight: 700; font-size: 0.875rem; }
+    .tg-online { font-size: 0.72rem; color: #22c55e; }
+    .tg-msgs { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .msg { max-width: 82%; padding: 0.6rem 0.9rem; border-radius: 12px; font-size: 0.82rem; line-height: 1.55; }
+    .msg-u { align-self: flex-end; background: rgba(26,143,255,0.18); border: 1px solid rgba(26,143,255,0.25); }
+    .msg-b { align-self: flex-start; background: var(--card2); border: 1px solid var(--border); }
+    .msg-b strong { color: var(--white); }
+    .tg-input-row { padding: 0.75rem 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
+    .tg-input-row input { flex: 1; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.75rem; color: var(--gray); font-size: 0.8rem; outline: none; font-family: inherit; }
+    .tg-send { width: 30px; height: 30px; background: var(--blue); border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 14px rgba(26,143,255,0.5); }
+
+    /* ── PRICING ── */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-top: 4rem; }
+    .plan {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; position: relative; transition: border-color 0.25s;
+    }
+    .plan:hover { border-color: var(--border2); }
+    /* Fix 3: glow on featured card */
+    .plan.highlight { background: var(--navy); border-color: rgba(26,143,255,0.5); box-shadow: 0 0 80px rgba(26,143,255,0.18), 0 0 160px rgba(26,143,255,0.06); }
+    .plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--blue); color: var(--white); font-size: 0.68rem; font-weight: 800; padding: 0.25rem 0.85rem; border-radius: var(--radius-pill); letter-spacing: 1px; white-space: nowrap; box-shadow: 0 0 16px rgba(26,143,255,0.6); }
+    .plan-tier { font-size: 0.72rem; font-weight: 700; color: var(--gray2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; }
+    .plan-price { margin-bottom: 0.3rem; }
+    .plan-price .sym { font-size: 1.2rem; font-weight: 600; color: var(--gray); vertical-align: super; line-height: 1; }
+    .plan-price .amt { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+    .plan-price .per { font-size: 0.85rem; color: var(--gray2); }
+    .plan-inr { font-size: 0.78rem; color: var(--gray2); margin-bottom: 1.75rem; }
+    .plan-feats { list-style: none; margin-bottom: 2rem; }
+    .plan-feats li { padding: 0.5rem 0; font-size: 0.85rem; color: var(--gray); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem; }
+    .plan-feats li::before { content: '–'; color: var(--gray2); font-size: 0.8rem; flex-shrink: 0; }
+    .plan.highlight .plan-feats li::before { content: '✓'; color: #22c55e; }
+    .plan-btn { width: 100%; padding: 0.75rem; border-radius: var(--radius-pill); font-size: 0.875rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border2); background: transparent; color: var(--white); transition: all 0.2s; font-family: inherit; }
+    .plan-btn:hover { background: rgba(255,255,255,0.06); }
+    .plan.highlight .plan-btn { background: var(--white); color: var(--black); border-color: transparent; }
+    .plan.highlight .plan-btn:hover { opacity: 0.88; }
+    /* Fix 4: contain PayPal buttons so they don't break the aesthetic */
+    #pp-starter, #pp-pro, #pp-business {
+      margin-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+    }
+    #pp-starter::before, #pp-pro::before, #pp-business::before {
+      content: 'or pay with';
+      display: block;
+      font-size: 0.7rem;
+      color: var(--gray2);
+      text-align: center;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── CTA CLOSER ── */
+    .closer {
+      min-height: 60vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 6rem 2rem; position: relative; z-index: 1;
+      border-top: 1px solid var(--border); overflow: hidden;
+    }
+    /* neon concentric rings behind closer */
+    .closer::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(26,100,255,0.1) 0%, rgba(26,80,255,0.04) 40%, transparent 65%);
+      border: 1px solid rgba(26,143,255,0.07);
+      pointer-events: none;
+    }
+    .closer::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 450px; height: 450px; border-radius: 50%;
+      border: 1px solid rgba(26,143,255,0.1);
+      pointer-events: none;
+    }
+    .closer h2 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem; position: relative; z-index: 2; }
+    .closer p { color: var(--gray); margin-bottom: 2.5rem; font-size: 1rem; position: relative; z-index: 2; }
+    .closer-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 2; }
+
+    /* ── TESTIMONIALS ── */
+    .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 4rem; }
+    .testi { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; }
+    .testi-stars { font-size: 0.8rem; color: #888; letter-spacing: 2px; margin-bottom: 1rem; }
+    .testi-q { color: var(--gray); font-size: 0.875rem; line-height: 1.7; margin-bottom: 1.5rem; font-style: italic; }
+    .testi-auth { display: flex; align-items: center; gap: 0.75rem; }
+    .testi-av { width: 36px; height: 36px; border-radius: 50%; background: var(--card2); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .testi-name { font-weight: 700; font-size: 0.85rem; }
+    .testi-role { font-size: 0.75rem; color: var(--gray2); }
+
+    /* ── FOOTER ── */
+    footer { border-top: 1px solid var(--border); padding: 4rem 2rem 2rem; position: relative; z-index: 1; }
+    .foot-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; }
+    .foot-brand-name { font-size: 1.15rem; font-weight: 900; letter-spacing: -0.5px; }
+    .foot-brand-desc { color: var(--gray2); font-size: 0.85rem; margin-top: 0.75rem; line-height: 1.7; max-width: 240px; }
+    .foot-col h5 { font-size: 0.72rem; font-weight: 700; color: var(--gray2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.25rem; }
+    .foot-col a { display: block; color: var(--gray); font-size: 0.85rem; margin-bottom: 0.65rem; transition: color 0.2s; }
+    .foot-col a:hover { color: var(--white); }
+    .foot-bottom { max-width: 1200px; margin: 3rem auto 0; padding-top: 2rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .foot-bottom p { color: var(--gray2); font-size: 0.78rem; }
+
+    /* ── AUTH MODAL ── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(16px); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border2); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 420px; position: relative; }
+    .modal-x { position: absolute; top: 1.25rem; right: 1.25rem; background: var(--card2); border: 1px solid var(--border); color: var(--gray); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+    .modal-x:hover { color: var(--white); }
+    .modal-brand { font-size: 1rem; font-weight: 900; color: var(--white); margin-bottom: 0.25rem; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .modal-sub { color: var(--gray); font-size: 0.85rem; margin-bottom: 2rem; }
+    .tabs { display: flex; background: var(--card2); border-radius: 10px; padding: 3px; margin-bottom: 1.75rem; gap: 3px; }
+    .tab { flex: 1; text-align: center; padding: 0.5rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--gray); background: transparent; border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .tab.active { background: var(--card); color: var(--white); }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--gray2); margin-bottom: 0.4rem; letter-spacing: 0.3px; }
+    .field input { width: 100%; padding: 0.75rem 1rem; background: var(--black); border: 1px solid var(--border2); border-radius: 10px; color: var(--white); font-size: 0.9rem; outline: none; transition: border-color 0.2s; font-family: inherit; }
+    .field input:focus { border-color: rgba(255,255,255,0.3); }
+    .submit { width: 100%; padding: 0.85rem; background: var(--white); color: var(--black); border: none; border-radius: var(--radius-pill); font-size: 0.925rem; font-weight: 800; cursor: pointer; font-family: inherit; margin-top: 0.5rem; transition: opacity 0.2s; }
+    .submit:hover { opacity: 0.88; }
+    .submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .msg-e { color: #ff4d4d; font-size: 0.8rem; margin-top: 0.75rem; display: none; }
+    .msg-ok { color: #22c55e; font-size: 0.8rem; margin-top: 0.75rem; display: none; }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; max-width: 1200px; margin: 0 auto; padding: 6rem 2rem 4rem; position: relative; z-index: 1; }
+    .dash-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem; }
+    .dash-greet { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .dash-sub { color: var(--gray); font-size: 0.875rem; margin-top: 0.3rem; }
+    .dash-pill { background: var(--navy); border: 1px solid rgba(26,143,255,0.3); color: var(--blue); padding: 0.3rem 0.9rem; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 700; }
+    .dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .dash-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .dash-stat-n { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+    .dash-stat-l { font-size: 0.78rem; color: var(--gray2); font-weight: 500; }
+    .dash-bots { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; }
+    .dash-bots-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .dash-bots-h h3 { font-size: 1rem; font-weight: 700; }
+    .bot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.75rem; }
+    .bot-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+    .bot-n { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.3rem; }
+    .bot-st { color: #22c55e; font-size: 0.72rem; display: flex; align-items: center; gap: 0.3rem; }
+    .bot-st::before { content: ''; width: 5px; height: 5px; background: #22c55e; border-radius: 50%; }
+
+    /* ── DASHBOARD TABS ── */
+    .cat-tab {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--gray2); padding: 0.45rem 1rem; border-radius: var(--radius-pill);
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.2s;
+    }
+    .cat-tab:hover { color: var(--white); border-color: var(--border2); }
+    .cat-tab.active { background: var(--white); color: var(--black); border-color: var(--white); }
+
+    /* ── PRODUCT CARDS ── */
+    .prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px,1fr)); gap: 0.75rem; }
+    .p-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1rem; cursor: pointer;
+      transition: all 0.2s; user-select: none;
+    }
+    .p-card:hover { border-color: rgba(26,143,255,0.45); background: #151515; transform: translateY(-2px); }
+    .p-card.active { border-color: rgba(26,143,255,0.6); background: rgba(26,143,255,0.07); }
+    .p-icon { font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .p-name { font-weight: 700; font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .p-desc { color: var(--gray2); font-size: 0.75rem; line-height: 1.4; }
+
+    /* ── INPUT TYPE BUTTONS ── */
+    .itype-btn {
+      background: var(--card2); border: 1px solid var(--border);
+      color: var(--gray2); padding: 0.35rem 0.85rem; border-radius: 8px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.2s;
+    }
+    .itype-btn:hover { color: var(--white); }
+    .itype-btn.active { background: rgba(26,143,255,0.12); border-color: rgba(26,143,255,0.4); color: var(--blue); }
+    #input-type-row { display: flex; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      nav { width: calc(100vw - 2rem); }
+      .tg-section { grid-template-columns: 1fr; gap: 3rem; }
+      .foot-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    }
+    @media (max-width: 480px) {
+      .foot-inner { grid-template-columns: 1fr; }
+      .stats-row { gap: 2.5rem; }
+      .section { padding: 5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PARTICLE BACKGROUND -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- NAV — floating pill -->
+<div class="nav-wrap">
+  <nav>
+    <div class="nav-logo">
+      <span class="nav-brand">LateNightStack</span><span class="nav-sep">/</span><span class="nav-product">LNS Botz</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Products</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#telegram">Telegram</a>
+    </div>
+    <div class="nav-cta" style="display:flex;align-items:center;gap:0.5rem">
+      <button onclick="openModal('login')" style="background:transparent;border:1px solid var(--border2);color:var(--gray2);padding:0.45rem 0.9rem;border-radius:var(--radius-pill);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Login</button>
+      <button class="nav-cta-btn" onclick="openModal('register')">
+        Get Started <div class="arrow-circle">↗</div>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- HERO -->
+<div class="hero z1">
+  <div class="hero-orb"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-badge">
+    <span class="dot"></span> Now powered by Gemini 2.5
+  </div>
+  <h1>
+    Turn AI Into<br><span class="dim">Passive Income</span><span class="period">.</span>
+  </h1>
+  <p class="hero-sub">
+    34 AI utility bots for India — monitor competitors, transform content, simplify documents, and automate businesses. In Hindi, English, and 20+ languages.
+  </p>
+  <div class="hero-btns">
+    <button class="btn-black" onclick="openModal('register')">Start Free →</button>
+    <a href="#features" class="btn-outline">See All Products <div class="arrow-circ">↗</div></a>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n">34+</div><div class="stat-l">AI Products</div></div>
+    <div class="stat"><div class="stat-n">6</div><div class="stat-l">Bot Categories</div></div>
+    <div class="stat"><div class="stat-n">20+</div><div class="stat-l">Languages</div></div>
+    <div class="stat"><div class="stat-n">24/7</div><div class="stat-l">Autonomous</div></div>
+  </div>
+</div>
+
+<!-- INTERSTITIAL 1 -->
+<div class="interstitial z1">
+  <h2>Your bots work<br><em>while you sleep.</em></h2>
+</div>
+
+<!-- FEATURES -->
+<div id="features">
+<div class="section">
+  <div class="eyebrow">What We Do</div>
+  <h2 class="section-h">One platform.<br>Every AI need.</h2>
+  <p class="section-sub">Configure once. Runs forever. No technical knowledge needed.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <span class="feat-icon">◉</span>
+      <h3>Intelligence Monitoring</h3>
+      <p>Track competitors, political narratives, Reddit sentiment, government tenders, job openings — all on autopilot with AI-generated alerts.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Competitor Tracker</span>
+        <span class="feat-tag">Tender Alerts</span>
+        <span class="feat-tag">Reddit Sentiment</span>
+        <span class="feat-tag">Election Monitor</span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">⬡</span>
+      <h3>Content Transformation</h3>
+      <p>Turn YouTube videos, PDFs, blogs or podcasts into LinkedIn posts, Twitter threads, quizzes, and flashcards instantly.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Video → Reels</span>
+        <span class="feat-tag">Blog → LinkedIn</span>
+        <span class="feat-tag">PDF → Quiz</span>
+        <span class="feat-tag">Podcast → Clips</span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">▣</span>
+      <h3>Document Intelligence</h3>
+      <p>Upload invoices, legal notices, GST forms, resumes or RTI documents and get instant plain-language explanations in Hindi or English.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Legal Notice</span>
+        <span class="feat-tag">GST Bot</span>
+        <span class="feat-tag">Resume Reviewer</span>
+        <span class="feat-tag">RTI Simplifier</span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">◈</span>
+      <h3>Political Intelligence</h3>
+      <p>Track political narratives, summarise speeches in Hindi/English, and monitor constituency sentiment in real time across India.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Speech Summarizer</span>
+        <span class="feat-tag">Narrative Tracker</span>
+        <span class="feat-tag">Constituency Intel</span>
+        <span class="feat-tag">Election Monitor</span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">⬟</span>
+      <h3>Multilingual AI</h3>
+      <p>Translate to Hindi, Bengali, Tamil, Telugu and 17 more languages. Convert English news to Hindi with TTS-ready narration scripts.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Hindi News</span>
+        <span class="feat-tag">Subtitle Gen</span>
+        <span class="feat-tag">Regional Summary</span>
+        <span class="feat-tag">20+ Languages</span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">◬</span>
+      <h3>Real Estate Intelligence</h3>
+      <p>Analyze property listings, detect fraud indicators, get market intelligence for any Indian city — powered by live data.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Listing Analyzer</span>
+        <span class="feat-tag">Fraud Detector</span>
+        <span class="feat-tag">Market Intel</span>
+        <span class="feat-tag">ROI Estimator</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- INTERSTITIAL 2 -->
+<div class="interstitial z1" style="border-top:1px solid var(--border)">
+  <h2>Built for India.<br><em>Hindi-first. Always.</em></h2>
+</div>
+
+<!-- TELEGRAM SECTION -->
+<div id="telegram">
+<div class="section">
+  <div class="tg-section">
+    <div>
+      <div class="tg-eyebrow">Live on Telegram</div>
+      <h2 class="tg-h">Chat with your AI<br>assistant right now.</h2>
+      <p class="tg-p">@EzAeyebot on Telegram understands PDFs, voice messages, images and text. Research, translate, summarize — just send a message.</p>
+      <ul class="tg-feats">
+        <li><div class="ic">📄</div> Send any PDF — get instant analysis</li>
+        <li><div class="ic">🎙️</div> Voice messages transcribed & answered</li>
+        <li><div class="ic">🖼️</div> Images and screenshots understood</li>
+        <li><div class="ic">🌐</div> Research any topic with web context</li>
+        <li><div class="ic">🔤</div> Translate to Hindi or any language</li>
+      </ul>
+      <a href="https://t.me/EzAeyebot" target="_blank" class="btn-black" style="margin-top:2rem;display:inline-flex">
+        Open @EzAeyebot →
+      </a>
+    </div>
+    <div class="tg-phone">
+      <div class="tg-phone-head">
+        <div class="tg-av">🤖</div>
+        <div>
+          <div class="tg-name">EzAeyebot</div>
+          <div class="tg-online">● online</div>
+        </div>
+      </div>
+      <div class="tg-msgs">
+        <div class="msg msg-u">Summarise this legal notice for me</div>
+        <div class="msg msg-b">
+          <strong>Legal Notice Analysis</strong><br><br>
+          Type: Payment Recovery<br>
+          Urgency: <span style="color:#ef4444">Critical</span><br><br>
+          You owe ₹50,000. Pay within <strong>15 days</strong> or face court proceedings under Section 138 NI Act.<br><br>
+          <strong>Next step:</strong> Consult a lawyer immediately.
+        </div>
+        <div class="msg msg-u">Hindi mein batao</div>
+        <div class="msg msg-b">आपको 15 दिनों के भीतर ₹50,000 का भुगतान करना होगा, अन्यथा Section 138 के तहत मुकदमा दायर किया जाएगा।</div>
+      </div>
+      <div class="tg-input-row">
+        <input type="text" placeholder="Type a message..." readonly />
+        <button class="tg-send">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TESTIMONIALS: TODO add real, attributable customer testimonials here.
+     The previous placeholder quotes were invented and have been removed. -->
+
+<!-- PRICING -->
+<div id="pricing">
+<div class="section">
+  <div class="eyebrow">Pricing</div>
+  <h2 class="section-h">Simple pricing.<br>No surprises.</h2>
+  <p class="section-sub">Start free. Pay only when you need more. Cancel anytime.</p>
+  <div class="pricing-grid">
+
+    <div class="plan">
+      <div class="plan-tier">Free</div>
+      <div class="plan-price"><span class="sym">$</span><span class="amt">0</span><span class="per">/mo</span></div>
+      <div class="plan-inr">Forever free</div>
+      <ul class="plan-feats">
+        <li>1 bot</li>
+        <li>50 requests/day</li>
+        <li>Basic monitoring</li>
+        <li>Telegram bot access</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('register')">Get Started Free</button>
+    </div>
+
+    <div class="plan">
+      <div class="plan-tier">Starter</div>
+      <div class="plan-price"><span class="sym">$</span><span class="amt">9</span><span class="per">/mo</span></div>
+      <div class="plan-inr">≈ ₹750/month</div>
+      <ul class="plan-feats">
+        <li>5 bots</li>
+        <li>500 requests/day</li>
+        <li>All 34 products</li>
+        <li>Telegram + Email delivery</li>
+        <li>Hindi & regional languages</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('register')" id="starter-cta">Upgrade to Starter</button>
+      <div id="pp-starter"></div>
+    </div>
+
+    <div class="plan highlight">
+      <div class="plan-badge">MOST POPULAR</div>
+      <div class="plan-tier">Pro</div>
+      <div class="plan-price"><span class="sym">$</span><span class="amt">29</span><span class="per">/mo</span></div>
+      <div class="plan-inr">≈ ₹2,400/month</div>
+      <ul class="plan-feats">
+        <li>20 bots</li>
+        <li>2,000 requests/day</li>
+        <li>Priority Gemini 2.5</li>
+        <li>All channels + webhooks</li>
+        <li>Political intelligence suite</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('register')" id="pro-cta">Upgrade to Pro</button>
+      <div id="pp-pro"></div>
+    </div>
+
+    <div class="plan">
+      <div class="plan-tier">Business</div>
+      <div class="plan-price"><span class="sym">$</span><span class="amt">99</span><span class="per">/mo</span></div>
+      <div class="plan-inr">≈ ₹8,200/month</div>
+      <ul class="plan-feats">
+        <li>100 bots</li>
+        <li>10,000 requests/day</li>
+        <li>White-label branding</li>
+        <li>Full API access</li>
+        <li>Dedicated support</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('register')" id="biz-cta">Upgrade to Business</button>
+      <div id="pp-business"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- CLOSER CTA -->
+<div class="closer z1">
+  <h2>Start building on<br>LNS Botz.</h2>
+  <p>Free forever. No credit card needed.</p>
+  <div class="closer-btns">
+    <button class="btn-black" onclick="openModal('register')">Create Free Account →</button>
+    <a href="https://t.me/EzAeyebot" target="_blank" class="btn-outline">Try Telegram Bot <div class="arrow-circ">↗</div></a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div>
+      <div class="foot-brand-name">
+        <span style="color:var(--white)">LateNightStack</span>
+        <span style="color:var(--gray2);font-weight:300;margin:0 0.3rem">/</span>
+        <span style="color:var(--gray2);font-weight:500;font-size:0.85rem">LNS Botz</span>
+      </div>
+      <p class="foot-brand-desc">AI utility bots for India. Hindi-first, multilingual, fully autonomous. Earn while you sleep.</p>
+    </div>
+    <div class="foot-col">
+      <h5>Products</h5>
+      <a href="#features">Intelligence Bots</a>
+      <a href="#features">Document AI</a>
+      <a href="#features">Content Tools</a>
+      <a href="#features">Political Intel</a>
+      <a href="#features">Multilingual AI</a>
+    </div>
+    <div class="foot-col">
+      <h5>Platform</h5>
+      <a href="#pricing">Pricing</a>
+      <a href="/docs" target="_blank">API Docs</a>
+      <a href="#telegram">Telegram Bot</a>
+    </div>
+    <div class="foot-col">
+      <h5>Contact</h5>
+      <a href="https://t.me/EzAeyebot" target="_blank">@EzAeyebot</a>
+      <a href="mailto:support@lnsbotz.ai">support@lnsbotz.ai</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <p>© 2025 LateNightStack. Built in India 🇮🇳</p>
+    <p>Powered by Gemini 2.5</p>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="auth-overlay">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-brand">
+      <span>LateNightStack</span><span style="color:var(--gray2);font-weight:300;margin:0 0.3rem">/</span><span style="color:var(--gray2);font-weight:400">LNS Botz</span>
+    </div>
+    <div class="modal-title" id="m-title">Welcome back</div>
+    <div class="modal-sub" id="m-sub">Sign in to your account</div>
+    <div class="tabs">
+      <button class="tab active" id="tab-l" onclick="switchTab('login')">Login</button>
+      <button class="tab" id="tab-r" onclick="switchTab('register')">Sign Up</button>
+    </div>
+    <!-- Google Sign In -->
+    <button class="btn-google" id="btn-google" onclick="googleSignIn()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+    <div class="divider"><span>or continue with email</span></div>
+
+    <div id="f-login">
+      <div class="field"><label>EMAIL</label><input type="email" id="l-email" placeholder="you@email.com" /></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="l-pass" placeholder="••••••••" /></div>
+      <button class="submit" onclick="doLogin()">Sign In</button>
+    </div>
+    <div id="f-register" style="display:none">
+      <div class="field"><label>FULL NAME</label><input type="text" id="r-name" placeholder="Your name" /></div>
+      <div class="field"><label>EMAIL</label><input type="email" id="r-email" placeholder="you@email.com" /></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="r-pass" placeholder="Min 8 characters" /></div>
+      <button class="submit" id="r-btn" onclick="doRegister()">Create Free Account</button>
+    </div>
+    <div class="msg-e" id="m-err"></div>
+    <div class="msg-ok" id="m-ok"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;min-height:100vh;padding:7rem 2rem 4rem;max-width:1140px;margin:0 auto;position:relative;z-index:1">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+    <div>
+      <div id="d-greet" style="font-size:1.8rem;font-weight:800;letter-spacing:-0.02em">Welcome back 👋</div>
+      <div style="color:var(--gray2);font-size:0.85rem;margin-top:0.3rem">LateNightStack / LNS Botz — <span id="d-plan" style="color:var(--blue);font-weight:700">FREE</span> plan</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem">
+      <div id="usage-meter" style="text-align:right;font-size:0.75rem;color:var(--gray2)">
+        <div id="usage-text">— / — today</div>
+        <div style="width:140px;height:5px;background:var(--card3);border-radius:3px;margin-top:0.35rem;overflow:hidden">
+          <div id="usage-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--blue),#4fb0ff);border-radius:3px;transition:width 0.4s"></div>
+        </div>
+      </div>
+      <button onclick="openUpgrade()" style="background:linear-gradient(135deg,var(--blue),#0a6fd6);border:none;color:#fff;padding:0.45rem 1.1rem;border-radius:var(--radius-pill);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 0 16px rgba(26,143,255,0.3)">⚡ Upgrade</button>
+      <button onclick="doLogout()" style="background:transparent;border:1px solid var(--border2);color:var(--gray);padding:0.4rem 1rem;border-radius:var(--radius-pill);font-size:0.8rem;cursor:pointer;font-family:inherit">Logout</button>
+    </div>
+  </div>
+
+  <!-- Onboarding banner -->
+  <div id="onboard-banner" style="background:linear-gradient(135deg,rgba(26,143,255,0.1),rgba(26,143,255,0.02));border:1px solid rgba(26,143,255,0.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+    <div style="font-size:0.875rem;color:var(--gray)">
+      👋 <strong style="color:#fff">New here?</strong> Pick a product below, paste your text (or click <em>Try example</em>), choose a language, and hit Run. Results appear instantly.
+    </div>
+    <button onclick="document.getElementById('onboard-banner').style.display='none'" style="background:none;border:none;color:var(--gray2);cursor:pointer;font-size:1rem;flex-shrink:0">✕</button>
+  </div>
+
+  <!-- Category tabs -->
+  <div style="display:flex;gap:0.5rem;margin-bottom:1.75rem;flex-wrap:wrap" id="cat-tabs">
+    <button class="cat-tab active" onclick="switchCat('document',this)">📄 Documents</button>
+    <button class="cat-tab" onclick="switchCat('content',this)">✍️ Content</button>
+    <button class="cat-tab" onclick="switchCat('multilingual',this)">🌐 Multilingual</button>
+    <button class="cat-tab" onclick="switchCat('intelligence',this)">🔍 Intelligence</button>
+    <button class="cat-tab" onclick="switchCat('property',this)">🏠 Real Estate</button>
+  </div>
+
+  <!-- Product grids per category -->
+  <div id="cat-document" class="cat-section">
+    <div class="prod-grid">
+      <div class="p-card" onclick="openProduct('legal_notice','document')"><div class="p-icon">📄</div><div class="p-name">Legal Notice</div><div class="p-desc">Simplify legal notices in plain language</div></div>
+      <div class="p-card" onclick="openProduct('invoice','document')"><div class="p-icon">🧾</div><div class="p-name">Invoice Analyzer</div><div class="p-desc">Extract amounts, dates, flag issues</div></div>
+      <div class="p-card" onclick="openProduct('resume','document')"><div class="p-icon">📋</div><div class="p-name">Resume Reviewer</div><div class="p-desc">Score resume and get improvement tips</div></div>
+      <div class="p-card" onclick="openProduct('gst','document')"><div class="p-icon">🏛️</div><div class="p-name">GST Bot</div><div class="p-desc">Decode GST notices and forms</div></div>
+      <div class="p-card" onclick="openProduct('rti','document')"><div class="p-icon">📜</div><div class="p-name">RTI Simplifier</div><div class="p-desc">Understand RTI replies instantly</div></div>
+      <div class="p-card" onclick="openProduct('property_doc','document')"><div class="p-icon">🏘️</div><div class="p-name">Property Document</div><div class="p-desc">Analyze sale deeds, title documents</div></div>
+    </div>
+  </div>
+
+  <div id="cat-content" class="cat-section" style="display:none">
+    <div class="prod-grid">
+      <div class="p-card" onclick="openProduct('blog_to_linkedin','content')"><div class="p-icon">💼</div><div class="p-name">Blog → LinkedIn</div><div class="p-desc">Turn any article into a viral post</div></div>
+      <div class="p-card" onclick="openProduct('blog_to_thread','content')"><div class="p-icon">🐦</div><div class="p-name">Blog → Thread</div><div class="p-desc">Create Twitter/X threads instantly</div></div>
+      <div class="p-card" onclick="openProduct('video_to_reels','content')"><div class="p-icon">🎬</div><div class="p-name">YouTube → Summary</div><div class="p-desc">Paste YouTube URL, get key points</div></div>
+      <div class="p-card" onclick="openProduct('pdf_to_quiz','content')"><div class="p-icon">❓</div><div class="p-name">PDF → Quiz</div><div class="p-desc">Generate MCQ from any content</div></div>
+      <div class="p-card" onclick="openProduct('notes_to_flashcards','content')"><div class="p-icon">🗂️</div><div class="p-name">Notes → Flashcards</div><div class="p-desc">Study notes become flashcards</div></div>
+      <div class="p-card" onclick="openProduct('email_newsletter','content')"><div class="p-icon">📧</div><div class="p-name">Content → Newsletter</div><div class="p-desc">Convert content to email copy</div></div>
+    </div>
+  </div>
+
+  <div id="cat-multilingual" class="cat-section" style="display:none">
+    <div class="prod-grid">
+      <div class="p-card" onclick="openProduct('translate','multilingual')"><div class="p-icon">🌐</div><div class="p-name">Translator</div><div class="p-desc">Translate to 20+ Indian languages</div></div>
+      <div class="p-card" onclick="openProduct('hindi_news','multilingual')"><div class="p-icon">📰</div><div class="p-name">Hindi News</div><div class="p-desc">English news → Hindi summary + TTS script</div></div>
+      <div class="p-card" onclick="openProduct('regional_summary','multilingual')"><div class="p-icon">🗣️</div><div class="p-name">Regional Summary</div><div class="p-desc">Summarize in any regional language</div></div>
+      <div class="p-card" onclick="openProduct('subtitle_generator','multilingual')"><div class="p-icon">📝</div><div class="p-name">Subtitle Generator</div><div class="p-desc">Translate subtitles to any language</div></div>
+    </div>
+  </div>
+
+  <div id="cat-intelligence" class="cat-section" style="display:none">
+    <div class="prod-grid">
+      <div class="p-card" onclick="openProduct('news_summarizer','intelligence')"><div class="p-icon">📡</div><div class="p-name">News Monitor</div><div class="p-desc">Track keywords across news + Reddit</div></div>
+      <div class="p-card" onclick="openProduct('competitor_tracker','intelligence')"><div class="p-icon">🔭</div><div class="p-name">Competitor Tracker</div><div class="p-desc">Monitor competitor mentions online</div></div>
+      <div class="p-card" onclick="openProduct('reddit_sentiment','intelligence')"><div class="p-icon">💬</div><div class="p-name">Reddit Sentiment</div><div class="p-desc">Analyze brand/topic sentiment</div></div>
+      <div class="p-card" onclick="openProduct('tender_alert','intelligence')"><div class="p-icon">📋</div><div class="p-name">Tender Alerts</div><div class="p-desc">Track government tender keywords</div></div>
+      <div class="p-card" onclick="openProduct('job_monitor','intelligence')"><div class="p-icon">💼</div><div class="p-name">Job Monitor</div><div class="p-desc">Track hiring trends for any role</div></div>
+      <div class="p-card" onclick="openProduct('political_narrative','intelligence')"><div class="p-icon">🗳️</div><div class="p-name">Political Tracker</div><div class="p-desc">Monitor political narratives</div></div>
+    </div>
+  </div>
+
+  <div id="cat-property" class="cat-section" style="display:none">
+    <div class="prod-grid">
+      <div class="p-card" onclick="openProduct('listing_analyzer','property')"><div class="p-icon">🏠</div><div class="p-name">Listing Analyzer</div><div class="p-desc">Value, ROI, fraud check any listing</div></div>
+      <div class="p-card" onclick="openProduct('market_intelligence','property')"><div class="p-icon">📊</div><div class="p-name">Market Intelligence</div><div class="p-desc">Price trends for any Indian city</div></div>
+      <div class="p-card" onclick="openProduct('fraud_check','property')"><div class="p-icon">🚨</div><div class="p-name">Fraud Detector</div><div class="p-desc">Detect fake listings & benami risk</div></div>
+    </div>
+  </div>
+
+  <!-- Universal product runner panel -->
+  <div id="prod-panel" style="display:none;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem;margin-top:1.5rem">
+
+    <!-- Panel header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+      <div>
+        <div id="prod-title" style="font-size:1rem;font-weight:700"></div>
+        <div id="prod-hint" style="font-size:0.78rem;color:var(--gray2);margin-top:0.2rem"></div>
+      </div>
+      <button onclick="closeProdPanel()" style="background:var(--card2);border:1px solid var(--border);color:var(--gray2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;flex-shrink:0">✕</button>
+    </div>
+
+    <!-- Input type selector (shown for content/intelligence) -->
+    <div id="input-type-row" style="display:none;margin-bottom:0.75rem;gap:0.5rem;flex-wrap:wrap">
+      <button class="itype-btn active" onclick="setInputType('text',this)">📝 Paste Text</button>
+      <button class="itype-btn" onclick="setInputType('url',this)">🔗 Enter URL</button>
+      <button class="itype-btn" onclick="setInputType('youtube',this)">▶️ YouTube</button>
+      <button class="itype-btn" id="itype-keywords-btn" onclick="setInputType('keywords',this)" style="display:none">🔑 Keywords</button>
+    </div>
+
+    <!-- Text input -->
+    <div id="input-text-wrap">
+      <textarea id="prod-input" placeholder="Paste your text here..."
+        style="width:100%;min-height:130px;background:var(--black);border:1px solid var(--border2);border-radius:10px;padding:0.85rem 1rem;color:var(--white);font-family:inherit;font-size:0.875rem;resize:vertical;outline:none;line-height:1.65;transition:border-color 0.2s"
+        onfocus="this.style.borderColor='rgba(26,143,255,0.4)'" onblur="this.style.borderColor=''"></textarea>
+    </div>
+
+    <!-- URL input -->
+    <div id="input-url-wrap" style="display:none">
+      <input id="prod-url" type="url" placeholder="https://..."
+        style="width:100%;background:var(--black);border:1px solid var(--border2);border-radius:10px;padding:0.85rem 1rem;color:var(--white);font-family:inherit;font-size:0.875rem;outline:none;transition:border-color 0.2s"
+        onfocus="this.style.borderColor='rgba(26,143,255,0.4)'" onblur="this.style.borderColor=''"/>
+    </div>
+
+    <!-- Keywords input (intelligence products) -->
+    <div id="input-keywords-wrap" style="display:none">
+      <input id="prod-keywords" type="text" placeholder="Enter keywords separated by commas (e.g. TATA, stock, India)"
+        style="width:100%;background:var(--black);border:1px solid var(--border2);border-radius:10px;padding:0.85rem 1rem;color:var(--white);font-family:inherit;font-size:0.875rem;outline:none;transition:border-color 0.2s"
+        onfocus="this.style.borderColor='rgba(26,143,255,0.4)'" onblur="this.style.borderColor=''"/>
+      <div style="font-size:0.75rem;color:var(--gray2);margin-top:0.4rem">The bot will search live news, Reddit, and web sources for these keywords</div>
+    </div>
+
+    <!-- Controls row -->
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.85rem;flex-wrap:wrap">
+      <select id="prod-lang" style="background:var(--black);border:1px solid var(--border2);border-radius:8px;padding:0.45rem 0.85rem;color:var(--white);font-size:0.8rem;outline:none;font-family:inherit">
+        <option value="en">English</option>
+        <option value="hi">हिंदी (Hindi)</option>
+        <option value="bn">বাংলা (Bengali)</option>
+        <option value="ta">தமிழ் (Tamil)</option>
+        <option value="te">తెలుగు (Telugu)</option>
+        <option value="mr">मराठी (Marathi)</option>
+        <option value="gu">ગુજરાતી (Gujarati)</option>
+        <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+      </select>
+      <button id="prod-run-btn" onclick="runProduct()"
+        style="background:var(--white);color:var(--black);border:none;border-radius:var(--radius-pill);padding:0.5rem 1.6rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s">
+        Run →
+      </button>
+      <span id="prod-status" style="font-size:0.8rem;color:var(--gray2)"></span>
+    </div>
+
+    <!-- Output area -->
+    <div id="prod-output" style="display:none;margin-top:1.25rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:1.5px">Result</div>
+        <button onclick="copyOutput()" style="background:none;border:1px solid var(--border);color:var(--gray2);padding:0.2rem 0.7rem;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:inherit" id="copy-btn">Copy</button>
+      </div>
+      <div id="prod-output-text" style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:1.25rem;font-size:0.875rem;color:var(--gray);line-height:1.75;white-space:pre-wrap;max-height:520px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- UPGRADE MODAL -->
+<div id="upgrade-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:300;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2.25rem;width:100%;max-width:760px;position:relative;max-height:90vh;overflow-y:auto">
+    <button onclick="closeUpgrade()" style="position:absolute;top:1.25rem;right:1.25rem;background:var(--card2);border:1px solid var(--border);color:var(--gray);width:30px;height:30px;border-radius:8px;cursor:pointer">✕</button>
+    <div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.4rem">Upgrade your plan</div>
+    <div style="color:var(--gray);font-size:0.9rem;margin-bottom:1.75rem">More bots, more requests, priority AI. Cancel anytime.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:1.5rem">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:1.5px">Starter</div>
+        <div style="margin:0.6rem 0"><span style="font-size:2rem;font-weight:900">$9</span><span style="color:var(--gray2);font-size:0.85rem">/mo</span></div>
+        <div style="font-size:0.78rem;color:var(--gray2);margin-bottom:1rem">≈ ₹750/month</div>
+        <ul style="list-style:none;font-size:0.82rem;color:var(--gray);line-height:2;margin-bottom:1rem">
+          <li>✓ 5 bots</li><li>✓ 500 requests/day</li><li>✓ All 34 products</li>
+        </ul>
+        <div id="upp-starter"></div>
+      </div>
+
+      <div style="background:linear-gradient(145deg,rgba(26,143,255,0.12),rgba(26,143,255,0.03));border:1px solid rgba(26,143,255,0.4);border-radius:14px;padding:1.5rem;position:relative">
+        <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:0.65rem;font-weight:800;padding:0.2rem 0.7rem;border-radius:var(--radius-pill);letter-spacing:1px">POPULAR</div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:1.5px">Pro</div>
+        <div style="margin:0.6rem 0"><span style="font-size:2rem;font-weight:900">$29</span><span style="color:var(--gray2);font-size:0.85rem">/mo</span></div>
+        <div style="font-size:0.78rem;color:var(--gray2);margin-bottom:1rem">≈ ₹2,400/month</div>
+        <ul style="list-style:none;font-size:0.82rem;color:var(--gray);line-height:2;margin-bottom:1rem">
+          <li>✓ 20 bots</li><li>✓ 2,000 requests/day</li><li>✓ Priority Gemini 2.5</li>
+        </ul>
+        <div id="upp-pro"></div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:1.5rem">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:1.5px">Business</div>
+        <div style="margin:0.6rem 0"><span style="font-size:2rem;font-weight:900">$99</span><span style="color:var(--gray2);font-size:0.85rem">/mo</span></div>
+        <div style="font-size:0.78rem;color:var(--gray2);margin-bottom:1rem">≈ ₹8,200/month</div>
+        <ul style="list-style:none;font-size:0.82rem;color:var(--gray);line-height:2;margin-bottom:1rem">
+          <li>✓ 100 bots</li><li>✓ 10,000 requests/day</li><li>✓ White-label + API</li>
+        </ul>
+        <div id="upp-business"></div>
+      </div>
+
+    </div>
+    <div style="text-align:center;color:var(--gray2);font-size:0.75rem;margin-top:1.25rem">Secure payment via PayPal · UPI/Razorpay coming soon</div>
+  </div>
+</div>
+
+<script>
+// ── PARTICLE SYSTEM ──────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], mouse = {x: -999, y: -999};
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initParticles() {
+    particles = [];
+    const count = Math.floor((W * H) / 12000);
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 1.5 + 0.5,
+        a: Math.random() * 0.6 + 0.15,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(26,143,255,${(1 - d/120) * 0.12})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // draw dots
+    for (const p of particles) {
+      // mouse repulsion
+      const mdx = p.x - mouse.x, mdy = p.y - mouse.y;
+      const md = Math.sqrt(mdx*mdx + mdy*mdy);
+      if (md < 100) {
+        p.vx += (mdx/md) * 0.08;
+        p.vy += (mdy/md) * 0.08;
+      }
+      p.vx *= 0.99; p.vy *= 0.99;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(26,143,255,${p.a})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  resize(); initParticles(); draw();
+})();
+
+// ── APP STATE ────────────────────────────────────────────────────────────────
+const API = '/api/v1';
+let token = localStorage.getItem('lns_token');
+let user  = JSON.parse(localStorage.getItem('lns_user') || 'null');
+const IS_APP = location.pathname === '/app';
+
+// Handle Google OAuth return FIRST (lands on /?auth=success&token=...)
+(function oauthFirst() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('auth') === 'success' && p.get('token')) {
+    token = p.get('token');
+    user = {
+      email: decodeURIComponent(p.get('email') || ''),
+      full_name: decodeURIComponent(p.get('name') || ''),
+      plan: p.get('plan') || 'free',
+    };
+    localStorage.setItem('lns_token', token);
+    localStorage.setItem('lns_user', JSON.stringify(user));
+    location.href = '/app';
+  }
+})();
+
+// Routing:
+//  /      → marketing landing. Logged-in users get bounced to /app.
+//  /app   → product workspace. Logged-out users get bounced to / to log in.
+if (IS_APP) {
+  if (!token) { location.href = '/'; }
+  else { renderWorkspace(); }
+} else {
+  if (token) { location.href = '/app'; }
+}
+initPayPal();
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(tab) {
+  if (token) { location.href = '/app'; return; }
+  document.getElementById('auth-overlay').classList.add('open');
+  switchTab(tab || 'register');
+}
+function closeModal() { document.getElementById('auth-overlay').classList.remove('open'); clearMsgs(); }
+document.getElementById('auth-overlay').addEventListener('click', e => { if (e.target.id === 'auth-overlay') closeModal(); });
+
+function switchTab(t) {
+  document.getElementById('f-login').style.display    = t === 'login'    ? '' : 'none';
+  document.getElementById('f-register').style.display = t === 'register' ? '' : 'none';
+  document.getElementById('tab-l').classList.toggle('active', t === 'login');
+  document.getElementById('tab-r').classList.toggle('active', t === 'register');
+  document.getElementById('m-title').textContent = t === 'login' ? 'Welcome back' : 'Create account';
+  document.getElementById('m-sub').textContent   = t === 'login' ? 'Sign in to your account' : 'Free forever — no card needed';
+  clearMsgs();
+}
+function clearMsgs() { ['m-err','m-ok'].forEach(id => { const e = document.getElementById(id); e.style.display='none'; e.textContent=''; }); }
+function showErr(m) { const e=document.getElementById('m-err'); e.textContent=m; e.style.display='block'; }
+function showOk(m)  { const e=document.getElementById('m-ok');  e.textContent=m; e.style.display='block'; }
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) return showErr('Fill in all fields');
+  clearMsgs();
+  try {
+    const res  = await fetch(`${API}/auth/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Login failed');
+    saveAuth(data.access_token, {email, plan: data.plan || 'free'});
+    showOk('Logged in!');
+    setTimeout(() => { closeModal(); showDashboard(); }, 600);
+  } catch(e) { showErr(e.message); }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('r-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  if (!name||!email||!pass) return showErr('Fill in all fields');
+  if (pass.length < 8) return showErr('Password min 8 characters');
+  clearMsgs();
+  try {
+    const res  = await fetch(`${API}/auth/register`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass,full_name:name})});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Registration failed');
+    saveAuth(data.access_token, {email, full_name: name, plan: 'free'});
+    showOk('Account created! Welcome 🎉');
+    setTimeout(() => { closeModal(); showDashboard(); }, 800);
+  } catch(e) { showErr(e.message); }
+}
+
+function saveAuth(t, u) { token=t; user=u; localStorage.setItem('lns_token',t); localStorage.setItem('lns_user',JSON.stringify(u)); }
+function doLogout() { localStorage.removeItem('lns_token'); localStorage.removeItem('lns_user'); location.reload(); }
+
+// ── PRODUCT RUNNER ────────────────────────────────────────────────────────────
+let _prod = null, _cat = null, _inputType = 'text';
+
+const PROD_META = {
+  // Document
+  legal_notice:        { label:'Legal Notice Simplifier',   hint:'Paste the full text of the legal notice you received', inputs:['text'], cat:'document' },
+  invoice:             { label:'Invoice Analyzer',           hint:'Paste invoice text, or details like items, amounts, dates', inputs:['text'], cat:'document' },
+  resume:              { label:'Resume Reviewer',            hint:'Paste your resume text for scoring and improvement tips', inputs:['text'], cat:'document' },
+  gst:                 { label:'GST Bot',                    hint:'Paste GST notice, GSTR form content, or any GST document text', inputs:['text'], cat:'document' },
+  rti:                 { label:'RTI Simplifier',             hint:'Paste your RTI application or the government reply you received', inputs:['text'], cat:'document' },
+  property_doc:        { label:'Property Document Analyzer', hint:'Paste sale deed, lease agreement, or property document text', inputs:['text'], cat:'document' },
+  // Content
+  blog_to_linkedin:    { label:'Blog → LinkedIn Post',       hint:'Paste your blog post or article text', inputs:['text','url'], cat:'content', fmt:'linkedin_post' },
+  blog_to_thread:      { label:'Blog → Twitter Thread',      hint:'Paste your blog or article text', inputs:['text','url'], cat:'content', fmt:'twitter_thread' },
+  video_to_reels:      { label:'YouTube → Summary',          hint:'Paste a YouTube video URL', inputs:['youtube'], cat:'content', fmt:'summary' },
+  pdf_to_quiz:         { label:'PDF / Notes → Quiz',         hint:'Paste document or notes text to generate quiz questions', inputs:['text'], cat:'content', fmt:'quiz' },
+  notes_to_flashcards: { label:'Notes → Flashcards',         hint:'Paste study notes or any content to turn into flashcards', inputs:['text'], cat:'content', fmt:'study_notes' },
+  email_newsletter:    { label:'Content → Newsletter',       hint:'Paste any content to transform into email newsletter format', inputs:['text','url'], cat:'content', fmt:'email_newsletter' },
+  // Multilingual
+  translate:           { label:'Translator',                 hint:'Paste any text — select your target language below', inputs:['text'], cat:'multilingual' },
+  hindi_news:          { label:'Hindi News Converter',       hint:'Paste English news text or enter a news article URL', inputs:['text','url'], cat:'multilingual' },
+  regional_summary:    { label:'Regional Summary',           hint:'Paste any text — get a summary in your chosen language', inputs:['text'], cat:'multilingual' },
+  subtitle_generator:  { label:'Subtitle Generator',         hint:'Paste transcript or video script text for subtitle translation', inputs:['text'], cat:'multilingual' },
+  // Intelligence
+  news_summarizer:     { label:'News Monitor',               hint:'Enter keywords to track — the bot searches live news and Reddit', inputs:['keywords'], cat:'intelligence' },
+  competitor_tracker:  { label:'Competitor Tracker',         hint:'Enter company/brand names to monitor online', inputs:['keywords'], cat:'intelligence' },
+  reddit_sentiment:    { label:'Reddit Sentiment',           hint:'Enter topic or brand keywords to analyze Reddit sentiment', inputs:['keywords'], cat:'intelligence' },
+  tender_alert:        { label:'Government Tender Alerts',   hint:'Enter keywords for tenders you want to track (e.g. "solar, Maharashtra")', inputs:['keywords'], cat:'intelligence' },
+  job_monitor:         { label:'Job Opening Monitor',        hint:'Enter role and company keywords (e.g. "AI engineer, Bangalore")', inputs:['keywords'], cat:'intelligence' },
+  political_narrative: { label:'Political Narrative Tracker',hint:'Enter political keywords or politician names to track', inputs:['keywords'], cat:'intelligence' },
+  // Property
+  listing_analyzer:    { label:'Property Listing Analyzer',  hint:'Paste property listing details — location, size, price, amenities', inputs:['text','url'], cat:'property' },
+  market_intelligence: { label:'Real Estate Market Intel',   hint:'Enter a city or area name to get market trend analysis', inputs:['text'], cat:'property' },
+  fraud_check:         { label:'Property Fraud Detector',    hint:'Paste property listing or document text to check for fraud indicators', inputs:['text'], cat:'property' },
+};
+
+function switchCat(cat, btn) {
+  document.querySelectorAll('.cat-section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('cat-' + cat).style.display = 'block';
+  btn.classList.add('active');
+  closeProdPanel();
+}
+
+function openProduct(product, category) {
+  _prod = product; _cat = category;
+  const meta = PROD_META[product] || { label: product, hint: '', inputs: ['text'] };
+
+  document.getElementById('prod-title').textContent = meta.label;
+  document.getElementById('prod-hint').textContent = meta.hint;
+
+  // Show/hide input type switcher
+  const itr = document.getElementById('input-type-row');
+  const hasMultiple = meta.inputs && meta.inputs.length > 1;
+  itr.style.display = hasMultiple ? 'flex' : 'none';
+
+  // Default input type
+  const defaultInput = meta.inputs ? meta.inputs[0] : 'text';
+  setInputType(defaultInput, document.querySelector('.itype-btn'));
+
+  // Keywords mode: hide type switcher, show keywords
+  if (defaultInput === 'keywords') {
+    itr.style.display = 'none';
+    showInputWrap('keywords');
+  } else if (defaultInput === 'youtube') {
+    itr.style.display = 'none';
+    showInputWrap('url');
+    document.getElementById('prod-url').placeholder = 'https://www.youtube.com/watch?v=...';
+  }
+
+  // Reset
+  document.getElementById('prod-input').value = '';
+  document.getElementById('prod-url').value = '';
+  document.getElementById('prod-keywords').value = '';
+  document.getElementById('prod-output').style.display = 'none';
+  document.getElementById('prod-status').textContent = '';
+
+  // Show panel
+  document.getElementById('prod-panel').style.display = 'block';
+  document.querySelectorAll('.p-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('prod-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Focus appropriate input
+  setTimeout(() => {
+    const el = document.getElementById(defaultInput === 'keywords' ? 'prod-keywords' : defaultInput === 'youtube' || defaultInput === 'url' ? 'prod-url' : 'prod-input');
+    if (el) el.focus();
+  }, 100);
+}
+
+function setInputType(type, btn) {
+  _inputType = type;
+  document.querySelectorAll('.itype-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  showInputWrap(type === 'youtube' ? 'url' : type);
+  if (type === 'youtube') document.getElementById('prod-url').placeholder = 'https://www.youtube.com/watch?v=...';
+  else if (type === 'url') document.getElementById('prod-url').placeholder = 'https://...';
+}
+
+function showInputWrap(type) {
+  document.getElementById('input-text-wrap').style.display = type === 'text' ? 'block' : 'none';
+  document.getElementById('input-url-wrap').style.display = type === 'url' ? 'block' : 'none';
+  document.getElementById('input-keywords-wrap').style.display = type === 'keywords' ? 'block' : 'none';
+}
+
+function closeProdPanel() {
+  document.getElementById('prod-panel').style.display = 'none';
+  document.querySelectorAll('.p-card').forEach(c => c.classList.remove('active'));
+  _prod = null; _cat = null;
+}
+
+function copyOutput() {
+  const text = document.getElementById('prod-output-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!'; btn.style.color = 'var(--success)';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; }, 2000);
+  });
+}
+
+async function runProduct() {
+  if (!token) { openModal('login'); return; }
+  if (!_prod) return;
+
+  const meta = PROD_META[_prod] || {};
+  const lang = document.getElementById('prod-lang').value;
+  const btn = document.getElementById('prod-run-btn');
+  const status = document.getElementById('prod-status');
+  const outWrap = document.getElementById('prod-output');
+  const outText = document.getElementById('prod-output-text');
+
+  btn.disabled = true; btn.textContent = '⏳ Running…';
+  status.textContent = 'Sending to AI…';
+  outWrap.style.display = 'none';
+
+  try {
+    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+    let result = '';
+
+    // ── Determine source ──────────────────────────────────────
+    const rawText = document.getElementById('prod-input').value.trim();
+    const rawUrl  = document.getElementById('prod-url').value.trim();
+    const rawKw   = document.getElementById('prod-keywords').value.trim();
+
+    const source = rawText || rawUrl;
+    const keywords = rawKw ? rawKw.split(',').map(k => k.trim()).filter(Boolean) : [];
+
+    // ── Document products ─────────────────────────────────────
+    if (_cat === 'document') {
+      if (!source) { status.textContent = '⚠ Paste some text first'; return; }
+      const prodType = _prod === 'property_doc' ? 'property' : _prod;
+      const r = await fetch(`${API}/products/document/analyze`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ product: prodType, text: source, url: rawUrl || null, output_language: lang }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || `HTTP ${r.status}`);
+      result = formatResult(d);
+
+    // ── Content products ──────────────────────────────────────
+    } else if (_cat === 'content') {
+      const isYouTube = _inputType === 'youtube' || rawUrl.includes('youtube') || rawUrl.includes('youtu.be');
+      const inputType = isYouTube ? 'youtube' : rawUrl ? 'article_url' : 'raw_text';
+      const src = rawUrl || rawText;
+      if (!src) { status.textContent = '⚠ Enter text or URL first'; return; }
+      const r = await fetch(`${API}/content/transform`, {
+        method: 'POST', headers,
+        body: JSON.stringify({
+          input_type: inputType,
+          source: src,
+          output_format: meta.fmt || 'summary',
+          options: { output_language: lang },
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || `HTTP ${r.status}`);
+      result = d.output || formatResult(d);
+
+    // ── Multilingual products ─────────────────────────────────
+    } else if (_cat === 'multilingual') {
+      const src = rawUrl || rawText;
+      if (!src) { status.textContent = '⚠ Enter text or URL first'; return; }
+      const r = await fetch(`${API}/products/multilingual`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ product: _prod, text: rawText || null, url: rawUrl || null, target_language: lang }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || `HTTP ${r.status}`);
+      result = d.hindi_summary || d.summary || d.translated || formatResult(d);
+
+    // ── Intelligence products ─────────────────────────────────
+    } else if (_cat === 'intelligence') {
+      if (!keywords.length) { status.textContent = '⚠ Enter at least one keyword'; return; }
+      status.textContent = 'Searching live sources… (10–30s)';
+      const r = await fetch(`${API}/products/intelligence`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ product: _prod, keywords, language: lang }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || `HTTP ${r.status}`);
+      const items = d.items || [];
+      const report = d.report || '';
+      result = report + (items.length ? `\n\n── ${items.length} sources analyzed ──\n` + items.slice(0,5).map(i => `• ${i.title || ''}: ${i.summary || ''}`).join('\n') : '');
+
+    // ── Property products ─────────────────────────────────────
+    } else if (_cat === 'property') {
+      const src = rawUrl || rawText;
+      if (!src && _prod !== 'market_intelligence') { status.textContent = '⚠ Enter text or URL first'; return; }
+      const location = rawText;
+      const r = await fetch(`${API}/products/property`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ product: _prod, text: rawText || null, url: rawUrl || null, location }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || `HTTP ${r.status}`);
+      result = formatResult(d);
+    }
+
+    outText.textContent = result || 'Done — no output.';
+    outWrap.style.display = 'block';
+    status.textContent = '✓ Done';
+    loadUsage();   // refresh usage meter after a run
+
+  } catch(e) {
+    outText.textContent = '❌ Error: ' + e.message;
+    outWrap.style.display = 'block';
+    status.textContent = '';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Run →';
+  }
+}
+
+function formatResult(d) {
+  if (!d || typeof d !== 'object') return String(d);
+  const skip = new Set(['product_type','char_count','raw','cached','model','cost_usd','input_tokens','output_tokens','fallback']);
+  return Object.entries(d)
+    .filter(([k,v]) => !skip.has(k) && v !== null && v !== undefined && v !== '' && v !== false)
+    .map(([k,v]) => {
+      const label = k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      if (Array.isArray(v) && v.length) return `${label}:\n${v.slice(0,8).map(i=>`  • ${i}`).join('\n')}`;
+      if (typeof v === 'object') return null;
+      return `${label}: ${v}`;
+    }).filter(Boolean).join('\n\n');
+}
+
+// ── GOOGLE OAUTH ──────────────────────────────────────────────────────────────
+async function googleSignIn() {
+  // Check if Google OAuth is configured on the server
+  try {
+    const res = await fetch(`${API}/auth/google/config`);
+    const data = await res.json();
+    if (!data.enabled) {
+      showErr('Google Sign In is not configured yet. Use email/password for now.');
+      return;
+    }
+  } catch(e) {}
+  // Redirect to Google OAuth flow
+  window.location.href = `${API}/auth/google/login`;
+}
+
+// Handle OAuth return — token passed in URL params
+// (OAuth return handled at top via oauthFirst)
+
+// ── After login/register → go to the app workspace ──────────────────────────
+function showDashboard() {
+  location.href = '/app';
+}
+
+// ── Render the workspace (only on /app) ──────────────────────────────────────
+function renderWorkspace() {
+  // Hide EVERYTHING in the body, then show only the dashboard.
+  // This guarantees no leftover marketing sections overlap the workspace.
+  Array.from(document.body.children).forEach(el => {
+    if (el.id === 'dashboard') return;
+    if (el.tagName === 'SCRIPT' || el.tagName === 'CANVAS') return;  // keep particle canvas + scripts
+    el.style.display = 'none';
+  });
+
+  // Show dashboard
+  const dash = document.getElementById('dashboard');
+  if (dash) { dash.style.display = 'block'; dash.style.paddingTop = '2.5rem'; }
+
+  const name = user?.full_name || user?.email?.split('@')[0] || 'there';
+  const greet = document.getElementById('d-greet');
+  if (greet) greet.textContent = `Welcome, ${name} 👋`;
+  const planEl = document.getElementById('d-plan');
+  if (planEl) planEl.textContent = (user?.plan || 'free').toUpperCase();
+
+  loadUsage();        // populate usage meter
+  initPayPal();       // (no-op on /app; upgrade buttons render lazily on openUpgrade)
+}
+
+async function loadBots() {
+  if (!token) return;
+  try {
+    const res = await fetch(`${API}/monitoring/`, {headers:{'Authorization':`Bearer ${token}`}});
+    if (!res.ok) return;
+    const bots = await res.json();
+    document.getElementById('d-bots').textContent = bots.length;
+    if (bots.length > 0) {
+      document.getElementById('d-bot-list').innerHTML = bots.map(b => `
+        <div class="bot-card"><div class="bot-n">◉ ${b.name}</div><div class="bot-st">Active</div></div>
+      `).join('');
+    }
+  } catch(e) {}
+}
+
+// ── PAYPAL ────────────────────────────────────────────────────────────────────
+function renderPayPalButton(containerId, plan) {
+  const el = document.getElementById(containerId);
+  if (!el || el.dataset.rendered) return;
+  el.dataset.rendered = '1';
+  paypal.Buttons({
+    style: {layout:'vertical', color:'blue', shape:'pill', label:'pay', height:38},
+    createOrder: async () => {
+      if (!token) { location.href='/'; throw new Error('Login required'); }
+      const res = await fetch(`${API}/billing/paypal/order`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+        body: JSON.stringify({plan, return_url:location.origin+'/app?paid=1', cancel_url:location.origin+'/app'}),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail||'Failed');
+      return data.order_id;
+    },
+    onApprove: async (data) => {
+      const res = await fetch(`${API}/billing/paypal/capture/${data.orderID}`, {method:'POST',headers:{'Authorization':`Bearer ${token}`}});
+      const result = await res.json();
+      if (result.status === 'success') {
+        user.plan = result.plan;
+        localStorage.setItem('lns_user', JSON.stringify(user));
+        alert(`✓ You're now on the ${result.plan.toUpperCase()} plan.`);
+        location.href = '/app';
+      }
+    },
+    onError: () => alert('Payment failed. Please try again.'),
+  }).render(`#${containerId}`);
+}
+
+function initPayPal() {
+  // Landing-page pricing buttons (only present on /)
+  if (typeof paypal === 'undefined') return;
+  ['starter','pro','business'].forEach(p => renderPayPalButton('pp-'+p, p));
+}
+
+// ── In-app Upgrade modal ─────────────────────────────────────────────────────
+function openUpgrade() {
+  document.getElementById('upgrade-overlay').style.display = 'flex';
+  if (typeof paypal !== 'undefined') {
+    renderPayPalButton('upp-starter','starter');
+    renderPayPalButton('upp-pro','pro');
+    renderPayPalButton('upp-business','business');
+  }
+}
+function closeUpgrade() { document.getElementById('upgrade-overlay').style.display = 'none'; }
+document.getElementById('upgrade-overlay')?.addEventListener('click', e => {
+  if (e.target.id === 'upgrade-overlay') closeUpgrade();
+});
+
+// ── Load usage meter from /auth/me ───────────────────────────────────────────
+async function loadUsage() {
+  if (!token) return;
+  try {
+    const res = await fetch(`${API}/auth/me`, { headers: {'Authorization':`Bearer ${token}`} });
+    if (!res.ok) return;
+    const d = await res.json();
+    const used = d.usage?.requests_today ?? 0;
+    const limit = d.usage?.requests_limit ?? 50;
+    const pct = limit ? Math.min(100, Math.round(used/limit*100)) : 0;
+    const txt = document.getElementById('usage-text');
+    const bar = document.getElementById('usage-bar');
+    if (txt) txt.textContent = `${used} / ${limit} requests today`;
+    if (bar) { bar.style.width = pct + '%'; if (pct >= 90) bar.style.background = '#ff5b5b'; }
+    const planEl = document.getElementById('d-plan');
+    if (planEl) planEl.textContent = (d.plan||'free').toUpperCase();
+  } catch(e) {}
+}
+
+// Handle PayPal redirect return on /app
+if (new URLSearchParams(location.search).get('paid') === '1') {
+  setTimeout(() => alert('🎉 Payment received! Your plan is being activated.'), 600);
+}
+
+</script>
+
+</body>
+</html>
